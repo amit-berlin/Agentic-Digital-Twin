@@ -14,7 +14,6 @@ from reportlab.pdfgen import canvas
 # -------------------------
 st.set_page_config(page_title="Earth 3.0 — Live Twin MVP", layout="wide", initial_sidebar_state="expanded")
 
-# Basic styling (kept minimal to avoid unsafe HTML issues)
 st.markdown("""
 <style>
 h1 { color: #001F3F; }
@@ -56,7 +55,6 @@ def make_pdf_bytes(org_name, summary_lines):
     text = c.beginText(40, height - 120)
     text.setFont("Helvetica", 11)
     for line in summary_lines:
-        # wrap simple
         text.textLine(line)
     c.drawText(text)
     c.showPage()
@@ -69,7 +67,7 @@ def make_pdf_bytes(org_name, summary_lines):
 # -------------------------
 col1, col2, col3 = st.columns([1,1,1], gap="large")
 
-# Placeholder images (replace with GIF URLs or hosted thumbnails)
+# Placeholder images (replace with your GIFs/hosted thumbnails)
 IMG1 = "https://via.placeholder.com/800x400.png?text=Self-Governing+Twin"
 IMG2 = "https://via.placeholder.com/800x400.png?text=ESG+Audit+Preview"
 IMG3 = "https://via.placeholder.com/800x400.png?text=2100+Sustainable+Growth"
@@ -108,16 +106,21 @@ with col2:
         df = generate_time_series(seed=42)
         latest = df.iloc[-1]
         st.success("Audit complete — summary below.")
-        st.write("**Latest KPI snapshot**")
-        st.table(latest.to_frame().rename(columns={0:"Score"}))
-        # small plot
-        fig = px.line(df, labels={"value":"Index", "index":"Date"})
-        st.plotly_chart(fig, use_container_width=True, height=240, config={"displayModeBar": False})
 
-        # prepare summary lines for PDF
+        # present as a two-column table with metric + score
+        audit_df = latest.to_frame(name='Score').reset_index()
+        audit_df.columns = ['Metric', 'Score']
+        st.table(audit_df)
+
+        # small plot: explicit call
+        df_reset = df.reset_index().rename(columns={'index':'Date'})
+        fig = px.line(df_reset, x='Date', y=['Governance','ESG','Finance'], labels={'value':'Index','variable':'Metric'})
+        st.plotly_chart(fig, use_container_width=True, height=260, config={"displayModeBar": False})
+
+        # prepare summary lines for PDF (fixed the f-string typo)
         summary_lines = [
             f"Organization: {org}",
-            f"Generated: {datetime.utcnow():%B %d, %Y %H:%M UTC",
+            f"Generated: {datetime.utcnow():%B %d, %Y %H:%M UTC}",
         ]
         summary_lines += [f"{k}: {v}" for k,v in latest.items()]
         pdf_bytes = make_pdf_bytes(org, summary_lines)
@@ -143,7 +146,6 @@ with col3:
         uplift = base_revenue * invest_pct / 100.0
         projected = base_revenue + uplift
         st.metric("Projected Annual Revenue (M USD)", f"{projected:.1f}M", delta=f"+{uplift:.1f}M")
-        # Simple chart
         sim_df = pd.DataFrame({
             "Scenario":["Current","With Earth 3.0"],
             "Revenue":[base_revenue, projected]
@@ -151,8 +153,7 @@ with col3:
         fig = px.bar(sim_df, x="Scenario", y="Revenue", text="Revenue", height=260)
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
-        # small explanation
-        st.markdown("**Explanation:** This is a simulation. Actual ROI depends on scope, systems integrated, and board adoption. Use pilot to measure real outcomes.")
+        st.markdown("**Explanation:** This is a simulation. Actual ROI depends on scope, systems integrated, and board adoption.")
     st.markdown("</div>", unsafe_allow_html=True)
 
 st.markdown("---")
