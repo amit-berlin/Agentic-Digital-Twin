@@ -84,7 +84,7 @@ with col1:
     st.markdown("")
     st.markdown("**Demo:** This page is a demo interface. For a live twin integration, we connect to ERP, SAP, Salesforce, PLM & Finance via an Agentic RAG fabric.")
     st.markdown("")
-    st.markdown("[➡️ See Live Twin](https://share.streamlit.io)  &nbsp;&nbsp; (opens in new tab)", unsafe_allow_html=True)
+    st.markdown("[➡️ See Live Twin](https://share.streamlit.io/user/amit-berlin)  &nbsp;&nbsp; (opens in new tab)", unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
 # -------------------------
